@@ -9,7 +9,7 @@
 import XCTest
 
 class writeUITests: XCTestCase {
-        
+    
     override func setUp() {
         super.setUp()
         
@@ -24,13 +24,32 @@ class writeUITests: XCTestCase {
     }
     
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        XCUIApplication().terminate()
         super.tearDown()
     }
     
-    func testExample() {
+    func test_Workflow_Save() {
+        let mainWindow = XCUIApplication().windows["Untitled"]
+        let textView = mainWindow.scrollViews.children(matching: .textView).element
+        
+        textView.typeText("This is what it sounds like... when doves cry.")
+        textView.typeKey("s", modifierFlags:.command)
+        
+        let uniqueName = String(Date().timeIntervalSinceReferenceDate)
+        let fileNameField = mainWindow.sheets.children(matching: .textField).allElementsBoundByIndex[0]
+        
+        fileNameField.typeText(uniqueName)
+        
+        mainWindow.sheets.buttons["Save"].click()
+        
+        XCTAssertFalse(mainWindow
+            .staticTexts
+            .matching(NSPredicate(format: "value contains[cd] 'could not be saved'"))
+            .element
+            .exists,
+                  "\"File could not be saved\" dialog showed up")
+        
         // Use recording to get started writing UI tests.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
-    
 }
